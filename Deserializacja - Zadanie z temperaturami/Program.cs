@@ -14,10 +14,25 @@ class Temperatury
             Console.Write(pomiary[i] + " ");
         }
         Console.WriteLine();
-        string zaszyfruj_pomiar = JsonSerializer.Serialize(pomiary);
-        File.WriteAllText("temperatury.txt", zaszyfruj_pomiar);
-        string odczytaj_pomiar = File.ReadAllText("temperatury.txt");
-        pomiary = JsonSerializer.Deserialize<double[]>(odczytaj_pomiar);
+        FileStream F = new FileStream("temperatury.bin", FileMode.Create);
+        BinaryWriter zapis = new BinaryWriter(F);
+        zapis.Write(pomiary.Length);
+        for (int i = 0; i < pomiary.Length; i++)
+        {
+            zapis.Write(pomiary[i]);
+        }
+        zapis.Close();
+        F.Close();
+        F = new FileStream("temperatury.bin", FileMode.Open);
+        BinaryReader odczyt = new BinaryReader(F);
+        int dlugosc = odczyt.ReadInt32();
+        pomiary = new double[dlugosc];
+        for (int i = 0; i < dlugosc; i++)
+        {
+            pomiary[i] = odczyt.ReadDouble();
+        }
+        odczyt.Close();
+        F.Close();
         for (int i = 0; i < pomiary.Length; i++)
         {
             suma_temperatur += pomiary[i];
